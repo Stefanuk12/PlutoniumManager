@@ -136,6 +136,28 @@ pub async fn install_iw4m(target_dir: Option<&str>) {
     zip_extract::extract(Cursor::new(release_zip), &target_dir, true).expect("unable to extract iw4m files");
 }
 
+// Installs IW4M
+pub async fn install_iw4m_config(target_dir: Option<&str>) {
+    // Initialise
+    let target_dir = PathBuf::from(target_dir.unwrap_or("."));
+    fs::create_dir_all(&target_dir).expect("unable to create installation directory");
+
+    // Create a reqwest client
+    let mut headers = header::HeaderMap::new();
+    headers.insert("User-Agent", header::HeaderValue::from_static("plutonium-manager"));
+
+    let client = reqwest::Client::builder()
+        .default_headers(headers)
+        .build()
+        .unwrap();
+
+    // Download the release
+    let release_zip = download_file(&client, "https://cdn.discordapp.com/attachments/749611171216359474/1108504949836496996/Configuration.zip").await.unwrap();
+
+    // Extract
+    zip_extract::extract(Cursor::new(release_zip), &target_dir, true).expect("unable to extract iw4m files");
+}
+
 // Installs IW4M log server
 pub async fn install_iw4m_log(target_dir: Option<&str>) {
     // Initialise

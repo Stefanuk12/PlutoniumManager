@@ -20,6 +20,10 @@ struct Args {
     #[arg(short, long, value_name="path")]
     iw4m: Option<String>,
 
+    /// Install a default IW4M config (you must change it afterwards)
+    #[arg(short='d', long, value_name="path")]
+    iw4m_config: Option<String>,
+
     /// Install IW4M Admin (log server) to a given path
     #[arg(short='l', long, value_name="path")]
     iw4m_log: Option<String>,
@@ -73,6 +77,13 @@ async fn main() {
         println!("Installing iw4m files to {}.", path);
         installer::install_iw4m(Some(&path)).await;
         println!("Installed iw4m files.");
+    }
+    if args.iw4m_config.is_some() {
+        let path = args.iw4m_config.unwrap();
+
+        println!("Installing iw4m config to {}.", path);
+        installer::install_iw4m_config(Some(&path)).await;
+        println!("Installed iw4m config.");
     }
     if args.iw4m_log.is_some() {
         let path = args.iw4m_log.unwrap();
