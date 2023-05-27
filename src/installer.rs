@@ -1,5 +1,6 @@
 // Dependencies
 use std::{path::PathBuf, io::{Cursor, Write}, fs, cmp::min};
+use flate2::bufread::GzDecoder;
 use indicatif::{ProgressBar, ProgressStyle};
 use reqwest::{header, Client};
 use futures_util::StreamExt;
@@ -179,7 +180,8 @@ pub async fn install_iw4m_log(target_dir: Option<&str>) {
         let release_zip = download_file(&client, "https://github.com/Stefanuk12/iw4m-log-server/releases/latest/download/iw4m-log-server-x86_64-unknown-linux-gnu.tar.gz").await.unwrap();
 
         // Extract
-        let mut archive = tar::Archive::new(Cursor::new(release_zip));
+        let decompressed = GzDecoder::new(release_zip.as_slice());
+        let mut archive = tar::Archive::new(decompressed);
         archive.unpack(target_dir).expect("unable to extract server files - server files don't exist?");
     } else if cfg!(windows) {
         // Download the release
@@ -260,7 +262,8 @@ pub async fn install_rcon(target_dir: Option<&str>) {
         let release_zip = download_file(&client, "https://github.com/Stefanuk12/cod-rcon/releases/latest/download/cod-rcon-x86_64-unknown-linux-gnu.tar.gz").await.unwrap();
 
         // Extract
-        let mut archive = tar::Archive::new(Cursor::new(release_zip));
+        let decompressed = GzDecoder::new(release_zip.as_slice());
+        let mut archive = tar::Archive::new(decompressed);
         archive.unpack(target_dir).expect("unable to extract server files - server files don't exist?");
     } else if cfg!(windows) {
         // Download the release
