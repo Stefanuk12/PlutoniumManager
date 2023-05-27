@@ -17,7 +17,7 @@ Options:
   -l, --iw4m-log <path>     Install IW4M Admin (log server) to a given path
   -p, --plutonium <path>    Install Plutonium to a given path
   -r, --rcon <path>         Install a RCON client to a given path
-  -e, --engine <game>       Specify the game version (must be provided if not only installing plutonium) [possible values: t6, t5, t4, iw5]
+  -e, --engine <game>       Specify the game version (must be provided if installing config/server) [possible values: t6, t5, t4, iw5]
   -h, --help                Print help
   -V, --version             Print version
 ```

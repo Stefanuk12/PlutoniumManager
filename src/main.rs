@@ -36,7 +36,7 @@ struct Args {
     #[arg(short, long, value_name="path")]
     rcon: Option<String>,
 
-    /// Specify the game version (must be provided if not only installing plutonium)
+    /// Specify the game version (must be provided if installing config/server)
     #[arg(short, long, value_name="game")]
     engine: Option<Servers>
 }
