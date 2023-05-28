@@ -157,7 +157,7 @@ pub async fn install_server(server: &Servers, target_dir: Option<&str>) {
     // Create a reqwest client
     let mut headers = header::HeaderMap::new();
     headers.insert("User-Agent", header::HeaderValue::from_static("plutonium-manager"));
-
+    headers.insert("Accept-Encoding", header::HeaderValue::from_static("compress, deflate, gzip"));
     let client = reqwest::Client::builder()
         .default_headers(headers)
         .build()
@@ -185,6 +185,7 @@ pub async fn install_iw4m(target_dir: Option<&str>) {
     // Create a reqwest client
     let mut headers = header::HeaderMap::new();
     headers.insert("User-Agent", header::HeaderValue::from_static("plutonium-manager"));
+    headers.insert("Accept-Encoding", header::HeaderValue::from_static("compress, deflate, gzip"));
 
     let client = reqwest::Client::builder()
         .default_headers(headers)
@@ -216,6 +217,7 @@ pub async fn install_iw4m_config(target_dir: Option<&str>) {
     // Create a reqwest client
     let mut headers = header::HeaderMap::new();
     headers.insert("User-Agent", header::HeaderValue::from_static("plutonium-manager"));
+    headers.insert("Accept-Encoding", header::HeaderValue::from_static("compress, deflate, gzip"));
 
     let client = reqwest::Client::builder()
         .default_headers(headers)
@@ -238,6 +240,7 @@ pub async fn install_iw4m_log(target_dir: Option<&str>) {
     // Create a reqwest client
     let mut headers = header::HeaderMap::new();
     headers.insert("User-Agent", header::HeaderValue::from_static("plutonium-manager"));
+    headers.insert("Accept-Encoding", header::HeaderValue::from_static("compress, deflate, gzip"));
 
     let client = reqwest::Client::builder()
         .default_headers(headers)
@@ -271,7 +274,7 @@ pub async fn install_config(server: &Servers, target_dir: Option<&str>) {
     // Create a reqwest client
     let mut headers = header::HeaderMap::new();
     headers.insert("User-Agent", header::HeaderValue::from_static("plutonium-manager"));
-    headers.insert("Accept-Encoding", header::HeaderValue::from_static(""));
+    headers.insert("Accept-Encoding", header::HeaderValue::from_static("compress, deflate, gzip"));
 
     let client = reqwest::Client::builder()
         .default_headers(headers)
@@ -293,6 +296,7 @@ pub async fn install_plutonium(target_dir: Option<&str>) {
     // Create a reqwest client
     let mut headers = header::HeaderMap::new();
     headers.insert("User-Agent", header::HeaderValue::from_static("plutonium-manager"));
+    headers.insert("Accept-Encoding", header::HeaderValue::from_static("compress, deflate, gzip"));
 
     let client = reqwest::Client::builder()
         .default_headers(headers)
@@ -320,6 +324,7 @@ pub async fn install_rcon(target_dir: Option<&str>) {
     // Create a reqwest client
     let mut headers = header::HeaderMap::new();
     headers.insert("User-Agent", header::HeaderValue::from_static("plutonium-manager"));
+    headers.insert("Accept-Encoding", header::HeaderValue::from_static("compress, deflate, gzip"));
 
     let client = reqwest::Client::builder()
         .default_headers(headers)
