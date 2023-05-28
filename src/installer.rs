@@ -1,8 +1,25 @@
 // Dependencies
-use std::{path::PathBuf, io::{Cursor, Write}, fs, cmp::min};
+use std::{
+    path::PathBuf,
+    io::{
+        Cursor,
+        Write
+    },
+    fs::{
+        self,
+        File
+    },
+    cmp::min
+};
 use flate2::bufread::GzDecoder;
-use indicatif::{ProgressBar, ProgressStyle};
-use reqwest::{header, Client};
+use indicatif::{
+    ProgressBar,
+    ProgressStyle
+};
+use reqwest::{
+    header,
+    Client
+};
 use futures_util::StreamExt;
 use clap::ValueEnum;
 
@@ -84,6 +101,53 @@ pub async fn download_file(client: &Client, url: &str) -> Result<Vec<u8>, String
     Ok(bytes)
 }
 
+// Downloads a file, output to a file
+pub async fn download_file_out(client: &Client, url: &str, output: &PathBuf) -> Result<File, String> {
+    // Initialise the request
+    let response = client
+        .get(url)
+        .send()
+        .await
+        .expect(&format!("Failed to GET from '{}'", &url));
+    let total_size = response
+        .content_length()
+        .expect(&format!("Failed to get content length from '{}'", &url));
+    
+    // Indicatif setup
+    let pb = ProgressBar::new(total_size);
+    pb.set_style(
+        ProgressStyle::default_bar()
+            .template("{msg}\n{spinner:.green} [{elapsed_precise}] [{wide_bar:.cyan/blue}] {bytes}/{total_bytes} ({bytes_per_sec}, {eta})")
+            .expect("unable to initialise pb template")
+            .progress_chars("#>-")
+    );
+    pb.set_message(format!("Downloading {}", url));
+
+    // Create the file
+    let mut file = File::create(output).expect(&format!("Failed to create file {}", output.to_str().unwrap()));
+
+    // Listen to when we download more bytes
+    let mut downloaded: u64 = 0;
+    let mut stream = response.bytes_stream();
+    while let Some(item) = stream.next().await {
+        // Grab the latest chunk
+        let chunk = item.expect("Error while downloading file");
+        let new = min(downloaded + (chunk.len() as u64), total_size);
+
+        // Update the progress bar
+        downloaded = new;
+        pb.set_position(new);
+
+        // Append the chunk to the file
+        file.write_all(&chunk)
+            .expect("failed to write chunk to file");
+    }
+
+    // Done
+    pb.finish_with_message(format!("Downloaded {}", url));
+    Ok(file)
+}
+
 // Installs a game's server files
 pub async fn install_server(server: &Servers, target_dir: Option<&str>) {
     // Initialise
@@ -99,11 +163,17 @@ pub async fn install_server(server: &Servers, target_dir: Option<&str>) {
         .build()
         .unwrap();
 
-    // Download the release
-    let release_zip = download_file(&client, &server.download_link()).await.unwrap();
+    // Download the release (output to a file due to large size > 1 GB)
+    let release_zip_path = PathBuf::from("./server_files.zip");
+    download_file_out(&client, &server.download_link(), &release_zip_path).await.unwrap();
+    let release_zip = File::open(&release_zip_path).expect("uunable to open server file zip");
 
     // Extract
-    zip_extract::extract(Cursor::new(release_zip), &target_dir, true).expect("unable to extract server files - server files don't exist?");
+    zip_extract::extract(release_zip, &target_dir, true).expect("unable to extract server files - server files don't exist?");
+
+    // Delete the file
+    fs::remove_file(release_zip_path)
+        .expect("unable to remove server zip");
 }
 
 // Installs IW4M
