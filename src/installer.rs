@@ -50,7 +50,13 @@ impl ServerTrait for Servers {
     }
 
     fn download_link(&self) -> String {
-        format!("https://github.com/Stefanuk12/pluto-server-files/releases/latest/download/{}.zip", self.name())
+        let id = match self {
+            Servers::T6 => "1RCqhm_1oMEDSk-VoeQy_tWTE-9jZ6Exd",
+            Servers::T5 => "1bDArK1W2kVse753C0Ht_n0hRYiaQ8ZfE",
+            Servers::T4 => "1AqTkGMXj2B2UTnm6hg_WFfQLVxXJDn3K",
+            _ => panic!("download link not implemented for this game type")
+        };
+        format!("https://drive.google.com/uc?export=download&id={}&confirm=t", id)
     }
 
     fn download_link_config(&self) -> String {
