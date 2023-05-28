@@ -22,6 +22,7 @@ use reqwest::{
 };
 use futures_util::StreamExt;
 use clap::ValueEnum;
+use async_recursion::async_recursion;
 
 use crate::types::GitHubReleases;
 
@@ -58,6 +59,7 @@ impl ServerTrait for Servers {
 }
 
 // Downloads a file
+#[async_recursion]
 pub async fn download_file(client: &Client, url: &str) -> Result<Vec<u8>, String> {
     // Initialise the request
     let response = client
@@ -65,11 +67,17 @@ pub async fn download_file(client: &Client, url: &str) -> Result<Vec<u8>, String
         .send()
         .await
         .expect(&format!("Failed to GET from '{}'", &url));
-    let total_size = response
-        .content_length()
-        .expect(&format!("Failed to get content length from '{}'", &url));
+    let total_size_r = response
+        .content_length();
+    
+    // Check we got the size
+    if total_size_r.is_none() {
+        println!("failed to get content-length of {}, retrying...", url);
+        return download_file(client, url).await;
+    }
     
     // Indicatif setup
+    let total_size = total_size_r.unwrap();
     let pb = ProgressBar::new(total_size);
     pb.set_style(
         ProgressStyle::default_bar()
