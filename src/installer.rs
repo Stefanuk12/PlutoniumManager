@@ -54,7 +54,7 @@ impl ServerTrait for Servers {
             Servers::T6 => "1RCqhm_1oMEDSk-VoeQy_tWTE-9jZ6Exd",
             Servers::T5 => "1bDArK1W2kVse753C0Ht_n0hRYiaQ8ZfE",
             Servers::T4 => "1AqTkGMXj2B2UTnm6hg_WFfQLVxXJDn3K",
-            _ => panic!("download link not implemented for this game type")
+            Servers::IW5 => "1olEtYfYsh799rBGsmLIIja_clcZ2BDS-",
         };
         format!("https://drive.google.com/uc?export=download&id={}&confirm=t", id)
     }
@@ -72,7 +72,7 @@ pub async fn download_file(client: &Client, url: &str) -> Result<Vec<u8>, String
         .get(url)
         .send()
         .await
-        .expect(&format!("Failed to GET from '{}'", &url));
+        .unwrap_or_else(|_| panic!("Failed to GET from '{}'", &url));
     let total_size_r = response
         .content_length();
     
@@ -122,10 +122,10 @@ pub async fn download_file_out(client: &Client, url: &str, output: &PathBuf) -> 
         .get(url)
         .send()
         .await
-        .expect(&format!("Failed to GET from '{}'", &url));
+        .unwrap_or_else(|_| panic!("Failed to GET from '{}'", &url));
     let total_size = response
         .content_length()
-        .expect(&format!("Failed to get content length from '{}'", &url));
+        .unwrap_or_else(|| panic!("Failed to get content length from '{}'", &url));
     
     // Indicatif setup
     let pb = ProgressBar::new(total_size);
@@ -138,7 +138,7 @@ pub async fn download_file_out(client: &Client, url: &str, output: &PathBuf) -> 
     pb.set_message(format!("Downloading {}", url));
 
     // Create the file
-    let mut file = File::create(output).expect(&format!("Failed to create file {}", output.to_str().unwrap()));
+    let mut file = File::create(output).unwrap_or_else(|_| panic!("Failed to create file {}", output.to_str().unwrap()));
 
     // Listen to when we download more bytes
     let mut downloaded: u64 = 0;
